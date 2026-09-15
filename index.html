@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RSVP · Cumpleaños de Rudi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#241338;
+    --plum:#3B1F63;
+    --pink:#FF3D7F;
+    --lime:#C9F24E;
+    --cream:#FFF4E4;
+    --muted:#B9A8D4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,61,127,.30), transparent 42%),
+      radial-gradient(circle at 88% 8%, rgba(201,242,78,.18), transparent 38%),
+      radial-gradient(circle at 70% 92%, rgba(122,86,255,.28), transparent 45%);
+    color:var(--cream);
+    font-family:"Figtree", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size:17px;
+    line-height:1.55;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px 18px 48px;
+  }
+  main{width:100%;max-width:560px}
+
+  .kite{
+    display:block;
+    width:64px;height:64px;
+    margin:0 auto 18px;
+    transform:rotate(-8deg);
+  }
+
+  h1{
+    font-family:"Bricolage Grotesque", Georgia, serif;
+    font-weight:800;
+    font-size:clamp(2.6rem, 11vw, 4.2rem);
+    line-height:.92;
+    letter-spacing:-.025em;
+    margin:0 0 6px;
+    text-align:center;
+    text-wrap:balance;
+  }
+  h1 .rudi{
+    display:block;
+    color:var(--lime);
+    font-size:1.28em;
+  }
+  .sub{
+    text-align:center;
+    color:var(--muted);
+    margin:0 0 30px;
+    font-size:1.02rem;
+  }
+
+  form{
+    background:rgba(255,244,228,.06);
+    border:1px solid rgba(255,244,228,.16);
+    border-radius:26px;
+    padding:26px 22px 24px;
+    backdrop-filter:blur(6px);
+  }
+
+  label.field{display:block;margin-bottom:20px}
+  .field span{
+    display:block;
+    font-weight:600;
+    font-size:.98rem;
+    margin-bottom:8px;
+  }
+  input[type=text], textarea{
+    width:100%;
+    font:inherit;
+    color:var(--cream);
+    background:rgba(36,19,56,.55);
+    border:1px solid rgba(255,244,228,.22);
+    border-radius:14px;
+    padding:12px 14px;
+  }
+  textarea{resize:vertical;min-height:80px}
+  input::placeholder, textarea::placeholder{color:rgba(185,168,212,.7)}
+
+  fieldset{border:0;margin:0 0 22px;padding:0}
+  legend{
+    font-weight:600;
+    font-size:.98rem;
+    padding:0;
+    margin-bottom:10px;
+  }
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .choice{position:relative}
+  .choice input{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    width:100%;height:100%;
+    margin:0;
+    cursor:pointer;
+  }
+  .choice span{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-family:"Bricolage Grotesque", Georgia, serif;
+    font-weight:700;
+    font-size:1.45rem;
+    padding:18px 10px;
+    border-radius:18px;
+    border:2px solid rgba(255,244,228,.28);
+    background:rgba(36,19,56,.45);
+    transition:transform .12s ease, background .12s ease, border-color .12s ease;
+  }
+  .choice input:hover + span{border-color:rgba(255,244,228,.55)}
+  .choice input:focus-visible + span{outline:3px solid var(--lime);outline-offset:3px}
+  .choice input:checked + span{
+    transform:translateY(-2px);
+    border-color:transparent;
+  }
+  .choice.yes input:checked + span{background:var(--lime);color:var(--ink)}
+  .choice.no input:checked + span{background:var(--pink);color:#2A0B18}
+
+  button{
+    width:100%;
+    font-family:"Bricolage Grotesque", Georgia, serif;
+    font-weight:800;
+    font-size:1.15rem;
+    color:var(--ink);
+    background:var(--cream);
+    border:0;
+    border-radius:999px;
+    padding:16px;
+    cursor:pointer;
+    transition:transform .12s ease;
+  }
+  button:hover{transform:translateY(-2px)}
+  button:disabled{opacity:.6;cursor:wait;transform:none}
+  button:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+
+  .note{
+    margin:14px 2px 0;
+    font-size:.86rem;
+    color:var(--muted);
+    text-align:center;
+  }
+  .error{
+    color:var(--pink);
+    font-weight:600;
+    font-size:.92rem;
+    margin:0 0 14px;
+    display:none;
+  }
+  .error.show{display:block}
+  .fallback{
+    display:none;
+    margin-top:16px;
+    padding:14px;
+    border-radius:16px;
+    background:rgba(201,242,78,.12);
+    border:1px solid rgba(201,242,78,.4);
+    font-size:.92rem;
+    text-align:center;
+  }
+  .fallback.show{display:block}
+  .fallback a{color:var(--lime)}
+
+  /* pantalla de confirmación */
+  .done{display:none;text-align:center}
+  .done.show{display:block}
+  .check{
+    width:96px;height:96px;
+    margin:0 auto 20px;
+    display:block;
+  }
+  .check circle{
+    fill:none;
+    stroke:var(--lime);
+    stroke-width:5;
+  }
+  .check path{
+    fill:none;
+    stroke:var(--lime);
+    stroke-width:7;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+    stroke-dasharray:60;
+    stroke-dashoffset:60;
+    animation:draw .45s .1s ease forwards;
+  }
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .done h2{
+    font-family:"Bricolage Grotesque", Georgia, serif;
+    font-weight:800;
+    font-size:clamp(3rem, 14vw, 5rem);
+    line-height:.9;
+    letter-spacing:-.03em;
+    margin:0 0 12px;
+  }
+  .done .resumen{
+    color:var(--muted);
+    margin:0 auto 24px;
+    max-width:36ch;
+  }
+  .done .resumen b{color:var(--cream)}
+  .linkish{
+    background:none;
+    border:0;
+    color:var(--muted);
+    font:inherit;
+    font-size:.92rem;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:6px;
+    width:auto;
+  }
+  .linkish:hover{color:var(--cream);transform:none}
+
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important}
+    button:hover, .choice input:checked + span{transform:none}
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <svg class="kite" viewBox="0 0 64 64" aria-hidden="true">
+    <rect x="12" y="26" width="40" height="30" rx="6" fill="#FF3D7F"/>
+    <rect x="12" y="26" width="40" height="8" rx="4" fill="#C9F24E"/>
+    <rect x="29" y="26" width="6" height="30" fill="#FFF4E4" opacity=".55"/>
+    <path d="M32 26c-6-2-10-6-8-11 2-4 8-2 8 4 0-6 6-8 8-4 2 5-2 9-8 11z" fill="#FFF4E4"/>
+  </svg>
+
+  <h1>RSVP a cumpleaños de <span class="rudi">¡Rudi!</span></h1>
+  <p class="sub">Dinos si puedes venir. Solo toma un segundo.</p>
+
+  <form id="rsvp" novalidate>
+    <label class="field">
+      <span>Tu nombre</span>
+      <input type="text" id="nombre" placeholder="Nombre y apellido" autocomplete="name">
+    </label>
+
+    <fieldset>
+      <legend>¿Vas a venir?</legend>
+      <div class="choices">
+        <label class="choice yes">
+          <input type="radio" name="asiste" value="Sí">
+          <span>Sí</span>
+        </label>
+        <label class="choice no">
+          <input type="radio" name="asiste" value="No">
+          <span>No</span>
+        </label>
+      </div>
+    </fieldset>
+
+    <label class="field">
+      <span>Mensaje (opcional)</span>
+      <textarea id="mensaje" placeholder="¿Vienes con alguien? ¿Alguna alergia?"></textarea>
+    </label>
+
+    <p class="error" id="error">Elige Sí o No antes de enviar.</p>
+
+    <button type="submit" id="enviar">Enviar respuesta</button>
+    <p class="note">Tu respuesta llega directamente a Mayssam.</p>
+  </form>
+
+  <section class="done" id="done" aria-live="polite">
+    <svg class="check" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="44"/>
+      <path d="M30 52 L44 66 L71 36"/>
+    </svg>
+    <h2>¡Enviado!</h2>
+    <p class="resumen" id="resumen"></p>
+    <button type="button" class="linkish" id="volver">Cambiar mi respuesta</button>
+  </section>
+
+</main>
+
+<script>
+  /* ------------------------------------------------------------------
+     PEGA AQUÍ TU CLAVE DE WEB3FORMS.
+     1. Entra en https://web3forms.com
+     2. Escribe mayssamelkaii@gmail.com y pulsa "Create Access Key"
+     3. Copia la clave que llega por correo y pégala entre las comillas.
+     ------------------------------------------------------------------ */
+  const ACCESS_KEY = "PEGA-TU-CLAVE-AQUI";
+
+  const form = document.getElementById("rsvp");
+  const error = document.getElementById("error");
+  const done = document.getElementById("done");
+  const boton = document.getElementById("enviar");
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const elegido = form.querySelector('input[name="asiste"]:checked');
+    if (!elegido) {
+      error.textContent = "Elige Sí o No antes de enviar.";
+      error.classList.add("show");
+      return;
+    }
+    error.classList.remove("show");
+
+    const nombre = document.getElementById("nombre").value.trim() || "Sin nombre";
+    const mensaje = document.getElementById("mensaje").value.trim();
+    const respuesta = elegido.value;
+
+    boton.disabled = true;
+    boton.textContent = "Enviando…";
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          subject: "RSVP cumpleaños de Rudi: " + respuesta + " — " + nombre,
+          from_name: "RSVP Rudi",
+          Nombre: nombre,
+          Respuesta: respuesta,
+          Mensaje: mensaje || "—"
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || "error");
+
+      document.getElementById("resumen").innerHTML =
+        respuesta === "Sí"
+          ? "Guardamos tu <b>Sí</b>, " + escapar(nombre) + ". Nos vemos en la fiesta de Rudi."
+          : "Anotamos tu <b>No</b>, " + escapar(nombre) + ". Te echaremos de menos.";
+
+      form.style.display = "none";
+      document.querySelector("h1").style.display = "none";
+      document.querySelector(".sub").style.display = "none";
+      document.querySelector(".kite").style.display = "none";
+      done.classList.add("show");
+    } catch (err) {
+      error.innerHTML = 'No se pudo enviar. Revisa tu conexión e inténtalo otra vez, o escribe a <a href="mailto:mayssamelkaii@gmail.com" style="color:inherit">mayssamelkaii@gmail.com</a>.';
+      error.classList.add("show");
+    } finally {
+      boton.disabled = false;
+      boton.textContent = "Enviar respuesta";
+    }
+  });
+
+  document.getElementById("volver").addEventListener("click", function () {
+    done.classList.remove("show");
+    form.style.display = "";
+    document.querySelector("h1").style.display = "";
+    document.querySelector(".sub").style.display = "";
+    document.querySelector(".kite").style.display = "";
+  });
+
+  form.querySelectorAll('input[name="asiste"]').forEach(function (r) {
+    r.addEventListener("change", function () { error.classList.remove("show"); });
+  });
+
+  function escapar(t) {
+    const d = document.createElement("div");
+    d.textContent = t;
+    return d.innerHTML;
+  }
+</script>
+</body>
+</html>
