@@ -422,8 +422,12 @@
   function irA(n){
     Object.values(pasos).forEach(p => p.classList.remove("activo"));
     pasos[n].classList.add("activo");
+    if (n === 1 && location.hash) history.replaceState(null, "", location.pathname);
     window.scrollTo({ top: 0, behavior: "instant" in window ? "auto" : "auto" });
   }
+
+  // el QR impreso apunta a .../#rsvp y entra directamente al formulario
+  if (location.hash.toLowerCase() === "#rsvp") irA(2);
 
   document.getElementById("abrir").addEventListener("click", () => irA(2));
   document.getElementById("volverInvitacion").addEventListener("click", () => irA(1));
